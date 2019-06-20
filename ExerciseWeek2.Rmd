@@ -1,0 +1,49 @@
+---
+title: "Developing Data products - Exercise 2"
+author: "Carlos Ochoa"
+date: "20th June 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Exercise
+
+Create a web page using R Markdown that features a map created with Leaflet.
+Host your webpage on either GitHub Pages, RPubs, or NeoCities.
+Your webpage must contain the date that you created the document, and it must contain a map created with Leaflet. We would love to see you show off your creativity!
+
+## Data
+
+We have uploaded the location and population of all the cities in Spain. After filtering cities with less of 10,000 habitants, we have presented each city in the map, with a cicle proportional to the population and a color corresponding to one of the 18 main regions of Spain.
+
+
+```{r map, echo=FALSE, warning=FALSE}
+library(leaflet)
+
+geoloc <- read.csv("CitiesGeoloc.csv",sep=";", encoding = "UTF-8", colClasses = c(NA,NA,NA,"numeric","numeric","numeric","numeric","numeric","numeric"))
+
+names(geoloc) <- c("region","province","city","lat","lng","alt","population","male","female")
+geoloc<-geoloc[geoloc$population>10000,]
+
+pal <- colorNumeric(palette = palette(), domain = as.numeric(geoloc$region))
+map<- geoloc %>% 
+  leaflet() %>%
+  addTiles() %>% 
+  addCircleMarkers (
+    weight = 1, 
+    radius=sqrt(geoloc$population)/50, 
+    fillColor =pal(as.numeric(geoloc$region))) %>%
+  addLegend(
+    "bottomleft", 
+    color=pal(1:18),
+    labels = levels(geoloc$region),
+    title = "Regions",
+    opacity = 1)
+
+map
+
+```
+
